@@ -1,3 +1,5 @@
 %syntax-version=1.0.0
 %project=paperplanes
 %url=https://github.com/Ensembl/paperplanes
+
+agency 2015-09-25T08:13:40Z Andrew Yates <aaytes@ebi.ac.uk> # Hold the names of funding agencies
