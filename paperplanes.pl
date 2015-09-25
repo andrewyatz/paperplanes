@@ -76,11 +76,16 @@ post '/project' => sub {
   $c->simplepost('Project');
 };
 
+get '/' => sub {
+  my $c = shift;
+  $c->render;
+} => 'index';
+
 app->start;
 
 __DATA__
 
-@@index.html
+@@index.html.ep
 <!doctype html>
 <html ng-app>
   <head>
