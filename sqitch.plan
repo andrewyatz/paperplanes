@@ -2,4 +2,8 @@
 %project=paperplanes
 %url=https://github.com/Ensembl/paperplanes
 
-agency 2015-09-25T08:13:40Z Andrew Yates <aaytes@ebi.ac.uk> # Hold the names of funding agencies
+agency 2015-09-25T08:13:40Z Andrew Yates <ayates@ebi.ac.uk> # Hold the names of funding agencies
+project 2015-09-25T08:56:21Z Andrew Yates <ayates@ebi.ac.uk> # Adding the project table
+team 2015-09-25T08:56:39Z Andrew Yates <ayates@ebi.ac.uk> # Adding team
+person [project team] 2015-09-25T08:58:21Z Andrew Yates <ayates@ebi.ac.uk> # Adding the person table
+award [agency] 2015-09-25T09:08:18Z Andrew Yates <ayates@ebi.ac.uk> # Adding award table
