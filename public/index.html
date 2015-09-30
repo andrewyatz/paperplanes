@@ -1,0 +1,30 @@
+<!doctype html>
+<html ng-app='PaperPlanesApp'>
+  <head>
+    <link rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    
+    <script src="/js/angular.js"></script>
+    <script src="/js/angular-resource.js"></script>
+    <script src="/js/angular-route.js"></script>
+    
+    <script src="/app/scripts/app.js"></script>
+    <script src="/app/scripts/directives.js"></script>
+    <script src="/app/scripts/services.js"></script>
+    <script src="/app/scripts/basicCrudControllers.js"></script>
+  </head>
+  
+  <body role="document">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="#">Home</a></li>
+          <li><a href="#/agency-list">Agencies</a></li>
+          <li><a href="#/project-list">Projects</a></li>
+          <li><a href="#/team-list">Teams</a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="container" ng-view=""></div>
+  </body>
+</html>

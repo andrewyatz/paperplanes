@@ -114,4 +114,20 @@ __PACKAGE__->belongs_to(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+
+sub TO_JSON {
+  my ($self) = @_;
+  return {
+    award_id => $self->award_id(),
+    name => $self->name()
+  };
+}
+
+sub FROM_JSON {
+  my ($self, $hash) = @_;
+  $self->award_id($hash->{award_id}) if defined $hash->{award_id};
+  $self->name($hash->{name});
+  return;
+}
+
 1;

@@ -92,4 +92,19 @@ __PACKAGE__->has_many(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+
+sub TO_JSON {
+  my ($self) = @_;
+  return {
+    team_id => $self->team_id(),
+    name => $self->name()
+  };
+}
+
+sub FROM_JSON {
+  my ($self, $hash) = @_;
+  $self->team_id($hash->{team_id}) if defined $hash->{team_id};
+  $self->name($hash->{name});
+  return;
+}
 1;
