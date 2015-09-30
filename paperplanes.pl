@@ -6,97 +6,109 @@ use Mojolicious::Lite;
 use PaperPlanes::Schema;
 my $schema = PaperPlanes::Schema->connect('dbi:SQLite:dbname=paperplanes.db');
 
-helper hashit => sub {
-  my ($c, $keys, @objs) = @_;
-  my @output;
-  foreach my $o (@objs) {
-    my %conv;
-    foreach my $key (@{$keys}) {
-      $conv{$key} = $o->$key();
-    }
-    push(@output, \%conv);
-  }
-  return \@output;
+helper get_object_by_id => sub {
+  my ($c, $resultset) = @_;
+  my $id = $c->stash('id');
+  my $key = lc($resultset).'_id';
+  my $obj = $schema->resultset($resultset)->find({$key => $id});
+  return $obj;
 };
 
-helper simpleget => sub {
+helper getall => sub {
   my ($c, $resultset) = @_;
-  my $keys = [lc($resultset).'_id', 'name'];
+  my @all = $schema->resultset($resultset)->all();
   $c->respond_to(
     json => sub {
-      my @all = $schema->resultset($resultset)->all();
-      $c->render(json => $c->hashit($keys, @all));
+      $c->render(json => [ map { $_->TO_JSON()} @all ] )
     }
   );
 };
 
-# Assumes name is the only important thing in the world!
-helper simplepost => sub {
+helper get => sub {
   my ($c, $resultset) = @_;
-  my $keys = [lc($resultset).'_id', 'name'];
+  my $obj = $c->get_object_by_id($resultset);
+  $c->respond_to(
+    json => sub {
+      $c->render(json => $obj->TO_JSON());
+    }
+  );
+};
+
+helper create => sub {
+  my ($c, $resultset) = @_;
+  my $obj = $schema->resultset($resultset)->create(
+    $c->req->json()
+  );
+  $c->respond_to(
+    json => sub {
+      $c->render(json => $obj->TO_JSON());
+    }
+  );
+};
+
+# Update based on by id
+helper update => sub {
+  my ($c, $resultset) = @_;
+  my $obj = $c->get_object_by_id($resultset);
   my $json = $c->req->json;
-  my $obj = $schema->resultset($resultset)->find_or_create({name => $json->{name}},{ key => 'name_unique' });
+  $obj->FROM_JSON($json);
+  $obj->update();
   $c->respond_to(
     json => sub {
-      $c->render(json => $c->hashit($keys, $obj)->[0]);
+      $c->render(json => $obj->TO_JSON());
     }
   );
 };
 
-get '/agency' => sub {
-  my $c = shift;
-  $c->simpleget('Agency');
+# Remove by :id
+helper del => sub {
+  my ($c, $resultset) = @_;
+  my $obj = $c->get_object_by_id($resultset);
+  $obj->delete() if defined $obj;
+  return;
 };
 
-post '/agency' => sub {
-  my $c = shift;
-  $c->simplepost('Agency');
-};
+sub create_endpoints {
+  my ($resultset, $url_base) = @_;
+  my $id_url = $url_base.'/:id';
+  
+  get $url_base => sub {
+    my $c = shift;
+    $c->getall($resultset);
+  };
 
-####### 
+  post $url_base => sub {
+    my $c = shift;
+    $c->create($resultset);
+  };
 
-get '/team' => sub {
-  my $c = shift;
-  $c->simpleget('Team');
-};
+  get $id_url => sub {
+    my $c = shift;
+    $c->get($resultset);
+  };
 
-post '/team' => sub {
-  my $c = shift;
-  $c->simplepost('Team');
-};
+  put $id_url => sub {
+    my $c = shift;
+    $c->update($resultset);
+  };
+  
+  del $id_url => sub {
+    my $c = shift;
+    $c->del($resultset);
+  };
+}
 
-####### 
-get '/project' => sub {
-  my $c = shift;
-  $c->simpleget('Project');
-};
+create_endpoints('Agency', '/agency');
+create_endpoints('Award', '/award');
+create_endpoints('Project', '/project');
+create_endpoints('Team', '/team');
+create_endpoints('Person', '/person');
 
-post '/project' => sub {
-  my $c = shift;
-  $c->simplepost('Project');
-};
-
-get '/' => sub {
-  my $c = shift;
-  $c->render;
-} => 'index';
+# get '/' => sub {
+#   my $c = shift;
+#   $c->render;
+# } => 'index';
 
 app->start;
 
 __DATA__
-
-@@index.html.ep
-<!doctype html>
-<html ng-app>
-  <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.6/angular.min.js"></script>
-  </head>
-  <body>
-    <div>
-      <label>Name:</label>
-      <input type="text" ng-model="yourName" placeholder="Enter a name here">
-      <hr>
-      <h1>Hello {{yourName}}!</h1>
-    </div>
-  </body>
-</html>
