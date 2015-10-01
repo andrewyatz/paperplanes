@@ -90,7 +90,6 @@ app.controller('ProjectCreateCtrl', ['$scope', 'ProjectFactory', 'Routes', funct
 
 //------------ TEAM WORK
 
-
 app.controller('TeamCtrl', ['$scope', '$window', 'TeamFactory', 'Routes', function($scope, $window, TeamFactory, Routes) {
 
   $scope.edit = Routes.team.edit;
@@ -131,3 +130,49 @@ app.controller('TeamCreateCtrl', ['$scope', 'TeamFactory', 'Routes', function($s
   };
 }]);
 
+// ----------- PEOPLE
+
+app.controller('PersonCtrl', ['$scope', '$window', 'PersonFactory', 'Routes', function($scope, $window, PersonFactory, Routes) {
+
+  $scope.edit = Routes.person.edit;
+  $scope.create = Routes.person.create;
+  $scope.cancel = Routes.person.list;
+  
+  $scope.delete = function(id, name) {
+    if($window.confirm('Are you sure you want to delete '+name+'?')) {
+      PersonFactory.delete({id: id});
+      $scope.teams = PersonFactory.query();
+    }
+  };
+  
+  $scope.list = PersonFactory.query();
+}]);
+
+app.controller('PersonEditCtrl', ['$scope', 'PersonFactory', 'TeamFactory', 'ProjectFactory', 'Routes', '$routeParams', function($scope, PersonFactory, TeamFactory, ProjectFactory, Routes, $routeParams) {
+  $scope.cancel = Routes.person.list;
+  
+  $scope.submit = function() {
+    $scope.obj.$update(function() {
+      Routes.person.list();
+    });
+  };
+  
+  $scope.obj = PersonFactory.get({id: $routeParams.id});
+  $scope.teams = TeamFactory.query();
+  $scope.projects = ProjectFactory.query();
+}]);
+
+app.controller('PersonCreateCtrl', ['$scope', 'PersonFactory', 'TeamFactory', 'ProjectFactory', 'Routes', function($scope, PersonFactory, TeamFactory, ProjectFactory, Routes) {
+  $scope.obj = new PersonFactory();
+  
+  $scope.cancel = Routes.person.list;
+  
+  $scope.submit = function() {
+    $scope.obj.$save(function() {
+      Routes.person.list();
+    });
+  };
+  
+  $scope.teams = TeamFactory.query();
+  $scope.projects = ProjectFactory.query();
+}]);

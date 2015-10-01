@@ -1,0 +1,33 @@
+<form novalidate="novalidate" class="form-horizontal" ng-submit='submit()' name='form'>
+  <div class="control-group">
+    <label class="control-label" for="first_name">First Name:</label>
+    <div class="controls">
+      <input type="text" id="first_name" ng-model="obj.first_name" placeholder="First name" focus="true" required/>
+    </div>
+    <label class="control-label" for="last_name">Last Name:</label>
+    <div class="controls">
+      <input type="text" id="last_name" ng-model="obj.last_name" placeholder="Last name" required/>
+    </div>
+    <label class="control-label" for="orcid">ORCID:</label>
+    <div class="controls">
+      <input type="text" id="orcid" ng-model="obj.orcid" placeholder="ORCID" required/>
+    </div>
+    
+    <label class="control-label" for="orcid">Default team:</label>
+    <div class="controls">
+      <select ng-model="obj.default_team" ng-options='team.name for team in teams track by team.team_id'>
+      </select>
+    </div>
+    <label class="control-label" for="orcid">Default project:</label>
+    <div class="controls">
+      <select ng-model="obj.default_project" ng-options='project.name for project in projects track by project.project_id'>
+      </select>
+    </div>
+  </div>
+  <div class="control-group">
+    <div class="controls">
+      <button type='submit' ng-disabled="form.$invalid" class="btn btn-small btn-primary">Save</a>
+      <button type='cancel' ng-click='cancel()' class="btn btn-small btn-danger">Cancel</button>
+    </div>
+  </div>
+</form>

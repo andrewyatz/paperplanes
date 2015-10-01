@@ -101,11 +101,4 @@ sub TO_JSON {
   };
 }
 
-sub FROM_JSON {
-  my ($self, $hash) = @_;
-  $self->project_id($hash->{project_id}) if defined $hash->{project_id};
-  $self->name($hash->{name});
-  return;
-}
-
 1;

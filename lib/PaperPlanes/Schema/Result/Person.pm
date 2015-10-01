@@ -123,6 +123,7 @@ __PACKAGE__->belongs_to(
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
+
 sub TO_JSON {
   my ($self) = @_;
   my $hash = {
@@ -134,17 +135,6 @@ sub TO_JSON {
   $hash->{default_team} = $self->default_team()->TO_JSON() if $self->default_team();
   $hash->{default_project} = $self->default_project()->TO_JSON() if $self->default_project();
   return $hash;
-}
-
-sub FROM_JSON {
-  my ($self, $hash) = @_;
-  $self->person_id($hash->{person_id}) if defined $hash->{person_id};
-  $self->last_name($hash->{last_name});
-  $self->first_name($hash->{first_name});
-  $self->orcid($hash->{orcid});
-  $self->default_team($hash->{default_team}) if defined $hash->{default_team};
-  $self->default_project($hash->{default_project}) if defined $hash->{default_project};
-  return;
 }
 
 1;

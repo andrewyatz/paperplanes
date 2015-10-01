@@ -7,8 +7,8 @@ use PaperPlanes::Schema;
 my $schema = PaperPlanes::Schema->connect('dbi:SQLite:dbname=paperplanes.db');
 
 helper get_object_by_id => sub {
-  my ($c, $resultset) = @_;
-  my $id = $c->stash('id');
+  my ($c, $resultset, $id) = @_;
+  $id //= $c->stash('id');
   my $key = lc($resultset).'_id';
   my $obj = $schema->resultset($resultset)->find({$key => $id});
   return $obj;
@@ -19,7 +19,7 @@ helper getall => sub {
   my @all = $schema->resultset($resultset)->all();
   $c->respond_to(
     json => sub {
-      $c->render(json => [ map { $_->TO_JSON()} @all ] )
+      $c->render(json => [ map { {$_->get_inflated_columns()} } @all ] )
     }
   );
 };
@@ -29,7 +29,8 @@ helper get => sub {
   my $obj = $c->get_object_by_id($resultset);
   $c->respond_to(
     json => sub {
-      $c->render(json => $obj->TO_JSON());
+      use Data::Dumper; warn Dumper($obj->get_inflated_columns);
+      $c->render(json => {$obj->get_inflated_columns()});
     }
   );
 };
@@ -41,21 +42,22 @@ helper create => sub {
   );
   $c->respond_to(
     json => sub {
-      $c->render(json => $obj->TO_JSON());
+      $c->render(json => {$obj->get_inflated_columns()});
     }
   );
 };
 
-# Update based on by id
+# Update based on by id. We also pass the hash into an optional sub before inflating
 helper update => sub {
-  my ($c, $resultset) = @_;
-  my $obj = $c->get_object_by_id($resultset);
+  my ($c, $resultset, $update_sub) = @_;
   my $json = $c->req->json;
-  $obj->FROM_JSON($json);
+  my $obj = $c->get_object_by_id($resultset);
+  $json = $update_sub->($c, $resultset, $json, $obj) if defined $update_sub;
+  $obj->set_inflated_columns($json);
   $obj->update();
   $c->respond_to(
     json => sub {
-      $c->render(json => $obj->TO_JSON());
+      $c->render(json => {$obj->get_inflated_columns()});
     }
   );
 };
@@ -64,12 +66,20 @@ helper update => sub {
 helper del => sub {
   my ($c, $resultset) = @_;
   my $obj = $c->get_object_by_id($resultset);
-  $obj->delete() if defined $obj;
-  return;
+  my $ret = {};
+  if(defined $obj) {
+    $obj->delete() if defined $obj;
+    $ret = {$obj->get_inflated_columns()};
+  }
+  $c->respond_to(
+    json => sub {
+      $c->render(json => $ret);
+    }
+  );
 };
 
 sub create_endpoints {
-  my ($resultset, $url_base) = @_;
+  my ($resultset, $url_base, $update_sub) = @_;
   my $id_url = $url_base.'/:id';
   
   get $url_base => sub {
@@ -89,7 +99,7 @@ sub create_endpoints {
 
   put $id_url => sub {
     my $c = shift;
-    $c->update($resultset);
+    $c->update($resultset, $update_sub);
   };
   
   del $id_url => sub {
@@ -99,10 +109,19 @@ sub create_endpoints {
 }
 
 create_endpoints('Agency', '/agency');
+
 create_endpoints('Award', '/award');
+
 create_endpoints('Project', '/project');
+
 create_endpoints('Team', '/team');
-create_endpoints('Person', '/person');
+
+create_endpoints('Person', '/person', sub {
+  my ($c, $resultset, $json, $person) = @_;
+  $json->{default_project} = $c->get_object_by_id('Project', $json->{default_project}->{project_id});
+  $json->{default_team} = $c->get_object_by_id('Team', $json->{default_team}->{team_id});
+  return $json;
+});
 
 # get '/' => sub {
 #   my $c = shift;
