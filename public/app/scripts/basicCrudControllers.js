@@ -141,7 +141,7 @@ app.controller('PersonCtrl', ['$scope', '$window', 'PersonFactory', 'Routes', fu
   $scope.delete = function(id, name) {
     if($window.confirm('Are you sure you want to delete '+name+'?')) {
       PersonFactory.delete({id: id});
-      $scope.teams = PersonFactory.query();
+      $scope.list = PersonFactory.query();
     }
   };
   
@@ -175,4 +175,49 @@ app.controller('PersonCreateCtrl', ['$scope', 'PersonFactory', 'TeamFactory', 'P
   
   $scope.teams = TeamFactory.query();
   $scope.projects = ProjectFactory.query();
+}]);
+
+// ----------- AWARD
+
+app.controller('AwardCtrl', ['$scope', '$window', 'AwardFactory', 'Routes', function($scope, $window, AwardFactory, Routes) {
+
+  $scope.edit = Routes.award.edit;
+  $scope.create = Routes.award.create;
+  $scope.cancel = Routes.award.list;
+  
+  $scope.delete = function(id, name) {
+    if($window.confirm('Are you sure you want to delete '+name+'?')) {
+      AwardFactory.delete({id: id});
+      $scope.list = AwardFactory.query();
+    }
+  };
+  
+  $scope.list = AwardFactory.query();
+}]);
+
+app.controller('AwardEditCtrl', ['$scope', 'AwardFactory', 'AgencyFactory', 'Routes', '$routeParams', function($scope, AwardFactory, AgencyFactory, Routes, $routeParams) {
+  $scope.cancel = Routes.award.list;
+  
+  $scope.submit = function() {
+    $scope.obj.$update(function() {
+      Routes.award.list();
+    });
+  };
+  
+  $scope.obj = AwardFactory.get({id: $routeParams.id});
+  $scope.agencies = AgencyFactory.query();
+}]);
+
+app.controller('AwardCreateCtrl', ['$scope', 'AwardFactory', 'AgencyFactory', 'Routes', function($scope, AwardFactory, AgencyFactory, Routes) {
+  $scope.obj = new AwardFactory();
+  
+  $scope.cancel = Routes.award.list;
+  
+  $scope.submit = function() {
+    $scope.obj.$save(function() {
+      Routes.award.list();
+    });
+  };
+  
+  $scope.agencies = AgencyFactory.query();
 }]);

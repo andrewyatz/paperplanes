@@ -117,10 +117,15 @@ __PACKAGE__->belongs_to(
 
 sub TO_JSON {
   my ($self) = @_;
-  return {
+  my $hash = {
     award_id => $self->award_id(),
-    name => $self->name()
+    name => $self->name(),
+    start => $self->start(),
+    end => $self->end(),
   };
+  warn $self->agency();
+  $hash->{agency} = $self->agency()->TO_JSON() if $self->agency();
+  return $hash;
 }
 
 1;

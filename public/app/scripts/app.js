@@ -2,30 +2,25 @@
 
 angular.module('PaperPlanesApp', [
   'ngRoute',
+  'PaperPlanesApp.navControllers',
   'PaperPlanesApp.services',
   'PaperPlanesApp.basicCrudControllers',
   'PaperPlanesApp.directives'
   ])
 .config(function ($routeProvider, $httpProvider) {
   
-  var servicesList = ['AgencyFactory', 'TeamFactory', 'ProjectFactory', "PersonFactory"];
-  var targets = ["agency", "team", "project", "person"];
+  var controllerPrefixes = ['Agency', 'Team', 'Project', "Person", "Award"];
+  var targets = ["agency", "team", "project", "person", "award"];
   
-  $routeProvider.when('/agency-list', {templateUrl: 'app/views/agency-list.html', controller: 'AgencyCtrl'});
-  $routeProvider.when('/agency-edit/:id', {templateUrl: 'app/views/agency-edit.html', controller: 'AgencyEditCtrl'});
-  $routeProvider.when('/agency-create', {templateUrl: 'app/views/agency-create.html', controller: 'AgencyCreateCtrl'});
-  
-  $routeProvider.when('/project-list', {templateUrl: 'app/views/project-list.html', controller: 'ProjectCtrl'});
-  $routeProvider.when('/project-edit/:id', {templateUrl: 'app/views/project-edit.html', controller: 'ProjectEditCtrl'});
-  $routeProvider.when('/project-create', {templateUrl: 'app/views/project-create.html', controller: 'ProjectCreateCtrl'});
-  
-  $routeProvider.when('/team-list', {templateUrl: 'app/views/team-list.html', controller: 'TeamCtrl'});
-  $routeProvider.when('/team-edit/:id', {templateUrl: 'app/views/team-edit.html', controller: 'TeamEditCtrl'});
-  $routeProvider.when('/team-create', {templateUrl: 'app/views/team-create.html', controller: 'TeamCreateCtrl'});
-  
-  $routeProvider.when('/person-list', {templateUrl: 'app/views/person-list.html', controller: 'PersonCtrl'});
-  $routeProvider.when('/person-edit/:id', {templateUrl: 'app/views/person-edit.html', controller: 'PersonEditCtrl'});
-  $routeProvider.when('/person-create', {templateUrl: 'app/views/person-create.html', controller: 'PersonCreateCtrl'});
+  for(var i = 0; i < targets.length; i++) {
+    var target = targets[i];
+    var prefix = controllerPrefixes[i];
+    
+    $routeProvider.when('/'+target+'-list', {templateUrl: 'app/views/'+target+'-list.html', controller: prefix+'Ctrl'});
+    $routeProvider.when('/'+target+'-edit/:id', {templateUrl: 'app/views/'+target+'-edit.html', controller: prefix+'EditCtrl'});
+    $routeProvider.when('/'+target+'-create', {templateUrl: 'app/views/'+target+'-create.html', controller: prefix+'CreateCtrl'});
+    
+  }
   
   $routeProvider.otherwise({redirectTo: '/'});
 

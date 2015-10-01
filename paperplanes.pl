@@ -19,7 +19,7 @@ helper getall => sub {
   my @all = $schema->resultset($resultset)->all();
   $c->respond_to(
     json => sub {
-      $c->render(json => [ map { {$_->get_inflated_columns()} } @all ] )
+      $c->render(json => [ @all ] )
     }
   );
 };
@@ -29,8 +29,7 @@ helper get => sub {
   my $obj = $c->get_object_by_id($resultset);
   $c->respond_to(
     json => sub {
-      use Data::Dumper; warn Dumper($obj->get_inflated_columns);
-      $c->render(json => {$obj->get_inflated_columns()});
+      $c->render(json => $obj);
     }
   );
 };
@@ -42,7 +41,7 @@ helper create => sub {
   );
   $c->respond_to(
     json => sub {
-      $c->render(json => {$obj->get_inflated_columns()});
+      $c->render(json => $obj);
     }
   );
 };
@@ -57,7 +56,7 @@ helper update => sub {
   $obj->update();
   $c->respond_to(
     json => sub {
-      $c->render(json => {$obj->get_inflated_columns()});
+      $c->render(json => $obj);
     }
   );
 };
@@ -69,7 +68,7 @@ helper del => sub {
   my $ret = {};
   if(defined $obj) {
     $obj->delete() if defined $obj;
-    $ret = {$obj->get_inflated_columns()};
+    $ret = $obj;
   }
   $c->respond_to(
     json => sub {
@@ -110,14 +109,18 @@ sub create_endpoints {
 
 create_endpoints('Agency', '/agency');
 
-create_endpoints('Award', '/award');
+create_endpoints('Award', '/award', sub {
+  my ($c, $resultset, $json, $obj) = @_;
+  $json->{agency} = $c->get_object_by_id('Agency', $json->{agency}->{agency_id});
+  return $json;
+});
 
 create_endpoints('Project', '/project');
 
 create_endpoints('Team', '/team');
 
 create_endpoints('Person', '/person', sub {
-  my ($c, $resultset, $json, $person) = @_;
+  my ($c, $resultset, $json, $obj) = @_;
   $json->{default_project} = $c->get_object_by_id('Project', $json->{default_project}->{project_id});
   $json->{default_team} = $c->get_object_by_id('Team', $json->{default_team}->{team_id});
   return $json;

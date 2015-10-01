@@ -2,8 +2,8 @@
 
 var services = angular.module('PaperPlanesApp.services', ['ngResource']);
 
-var servicesList = ['AgencyFactory', 'TeamFactory', 'ProjectFactory', "PersonFactory"];
-var targets = ["agency", "team", "project", "person"];
+var servicesList = ['AgencyFactory', 'TeamFactory', 'ProjectFactory', "PersonFactory", "AwardFactory"];
+var targets = ["agency", "team", "project", "person", "award"];
 
 for(var index = 0; index < targets.length; index++) {
   var entry = targets[index];

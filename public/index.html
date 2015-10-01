@@ -12,17 +12,19 @@
     <script src="/app/scripts/directives.js"></script>
     <script src="/app/scripts/services.js"></script>
     <script src="/app/scripts/basicCrudControllers.js"></script>
+    <script src="/app/scripts/nav.js"></script>
   </head>
   
   <body role="document">
     <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div id="navbar" class="navbar-collapse collapse">
+      <div id="navbar" class="navbar-collapse collapse" ng-controller="HeaderCtrl">
         <ul class="nav navbar-nav">
-          <li class="active"><a href="#">Home</a></li>
-          <li><a href="#/agency-list">Agencies</a></li>
-          <li><a href="#/project-list">Projects</a></li>
-          <li><a href="#/team-list">Teams</a></li>
-          <li><a href="#/person-list">People</a></li>
+          <li ng-class="{ active: isActiveEqual('/')}"><a href="#">Home</a></li>
+          <li ng-class="{ active: isActive('/award')}"><a href="#/award-list">Awards</a></li>
+          <li ng-class="{ active: isActive('/person')}"><a href="#/person-list">People</a></li>
+          <li ng-class="{ active: isActive('/agency')}"><a href="#/agency-list">Agencies</a></li>
+          <li ng-class="{ active: isActive('/project')}"><a href="#/project-list">Projects</a></li>
+          <li ng-class="{ active: isActive('/team')}"><a href="#/team-list">Teams</a></li>
         </ul>
       </div>
     </nav>

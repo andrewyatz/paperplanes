@@ -1,0 +1,27 @@
+<form novalidate="novalidate" class="form-horizontal" ng-submit='submit()' name='form'>
+  <div class="control-group">
+    <label class="control-label" for="name">Name:</label>
+    <div class="controls">
+      <input type="text" id="name" ng-model="obj.name" placeholder="Award name" focus="true" required/>
+    </div>
+    <label class="control-label" for="name">Start:</label>
+    <div class="controls">
+      <input type="text" id="name" ng-model="obj.start" placeholder="Start" required/>
+    </div>
+    <label class="control-label" for="name">End:</label>
+    <div class="controls">
+      <input type="text" id="name" ng-model="obj.end" placeholder="End" required/>
+    </div>
+    <label class="control-label" for="name">Agency:</label>
+    <div class="controls">
+      <select ng-model="obj.agency" ng-options='agency.name for agency in agencies track by agency.agency_id'>
+      </select>
+    </div>
+  </div>
+  <div class="control-group">
+    <div class="controls">
+      <button type='submit' ng-disabled="form.$invalid" class="btn btn-small btn-primary">Save</a>
+      <button type='cancel' ng-click='cancel()' class="btn btn-small btn-danger">Cancel</button>
+    </div>
+  </div>
+</form>
