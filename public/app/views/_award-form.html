@@ -1,27 +1,36 @@
 <form novalidate="novalidate" class="form-horizontal" ng-submit='submit()' name='form'>
-  <div class="control-group">
-    <label class="control-label" for="name">Name:</label>
-    <div class="controls">
-      <input type="text" id="name" ng-model="obj.name" placeholder="Award name" focus="true" required/>
+  
+  <div class="form-group">
+    <label for="name" class="col-sm-1 control-label">Name</label>
+    <div class="col-sm-5">
+      <input type="text" class='form-control' id="name" ng-model="obj.name" placeholder="Award name" focus="true" required/>
     </div>
-    <label class="control-label" for="name">Start:</label>
-    <div class="controls">
-      <input type="text" id="name" ng-model="obj.start" placeholder="Start" required/>
+  </div>
+  
+  <div class="form-group">  
+    <label for="start" class="col-sm-1 control-label">Start</label>
+    <div class="col-sm-5">
+      <input type="date" class='form-control' id="start" ng-model="obj.start" required/>
     </div>
-    <label class="control-label" for="name">End:</label>
-    <div class="controls">
-      <input type="text" id="name" ng-model="obj.end" placeholder="End" required/>
+  </div>
+
+  <div class="form-group">      
+    <label for="end" class="col-sm-1 control-label">End</label>
+    <div class="col-sm-5">
+      <input type="date" class='form-control' id="end" ng-model="obj.end" required/>
     </div>
-    <label class="control-label" for="name">Agency:</label>
-    <div class="controls">
-      <select ng-model="obj.agency" ng-options='agency.name for agency in agencies track by agency.agency_id'>
+  </div>
+  
+  <div class="form-group">      
+    <label for="agency" class="col-sm-1 control-label">Agency</label>
+    <div class="col-sm-5">
+      <select id='agency' class='form-control' ng-model="obj.agency" ng-options='agency.name for agency in agencies track by agency.agency_id'>
       </select>
     </div>
   </div>
-  <div class="control-group">
-    <div class="controls">
-      <button type='submit' ng-disabled="form.$invalid" class="btn btn-small btn-primary">Save</a>
-      <button type='cancel' ng-click='cancel()' class="btn btn-small btn-danger">Cancel</button>
-    </div>
+
+  <div class="col-sm-4">
+  <button type='submit' ng-disabled="form.$invalid" class="btn btn-small btn-primary">Save</button>
+  <button type='cancel' ng-click='cancel()' class="btn btn-small btn-danger">Cancel</button>
   </div>
 </form>

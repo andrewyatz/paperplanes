@@ -2,6 +2,8 @@
 use strict;
 use warnings;
 use Mojolicious::Lite;
+use Mojo::UserAgent;
+use XML::Simple;
 
 use PaperPlanes::Schema;
 my $schema = PaperPlanes::Schema->connect('dbi:SQLite:dbname=paperplanes.db');
@@ -125,6 +127,39 @@ create_endpoints('Person', '/person', sub {
   $json->{default_team} = $c->get_object_by_id('Team', $json->{default_team}->{team_id});
   return $json;
 });
+
+############## SEARCH EUROPMC
+
+get '/searchpmc' => sub {
+  my $c = shift;
+  my $q = $c->param('q');
+  my $resulttype = $c->param('resulttype') // 'lite';
+  my $url = sprintf('http://www.ebi.ac.uk/europepmc/webservices/rest/search/format=json&resulttype=%s&query=%s', $resulttype, $q);
+  my $ua = Mojo::UserAgent->new;
+  my $body = $ua->get($url => {Accept => '*/*'})->res->json;
+  my $results = [];
+  if(exists $body->{resultList}) {
+    $results = $body->{resultList}->{result};
+    foreach my $record (@{$results}) {
+      my $authors = $record->{authorString};
+      $authors =~ s/\.$//;
+      my $position = 1;
+      my @split_authors = 
+        map { 
+          my ($name, $inital) = $_ =~ /\s*(.+) (.+)$/; 
+          { initals => $inital, last_name => $name, position => $position++ }; 
+        } 
+        split(/,/, $authors);
+      $record->{split_authors} = \@split_authors;
+      $record->{author_count} = scalar(@split_authors);
+    }
+  }
+  $c->respond_to(
+    json => sub {
+      $c->render(json => { results => $results } );
+    }
+  );
+};
 
 # get '/' => sub {
 #   my $c = shift;

@@ -1,33 +1,45 @@
 <form novalidate="novalidate" class="form-horizontal" ng-submit='submit()' name='form'>
-  <div class="control-group">
-    <label class="control-label" for="first_name">First Name:</label>
-    <div class="controls">
-      <input type="text" id="first_name" ng-model="obj.first_name" placeholder="First name" focus="true" required/>
+  
+  <div class="form-group">
+    <label for="first_name" class="col-sm-1 control-label">First name</label>
+    <div class="col-sm-5">
+      <input type="text" class='form-control' id="first_name" ng-model="obj.first_name" placeholder="First name" focus="true" required/>
     </div>
-    <label class="control-label" for="last_name">Last Name:</label>
-    <div class="controls">
-      <input type="text" id="last_name" ng-model="obj.last_name" placeholder="Last name" required/>
+  </div>
+  
+  <div class="form-group">
+    <label for="last_name" class="col-sm-1 control-label">Last name</label>
+    <div class="col-sm-5">
+      <input type="text" class='form-control' id="last_name" ng-model="obj.last_name" placeholder="" required/>
     </div>
-    <label class="control-label" for="orcid">ORCID:</label>
-    <div class="controls">
-      <input type="text" id="orcid" ng-model="obj.orcid" placeholder="ORCID" required/>
+  </div>
+  
+  <div class="form-group">
+    <label for="orcid" class="col-sm-1 control-label">ORCID</label>
+    <div class="col-sm-5" ng-class='{ "has-error" : form.orcid.$error.orcid}'>
+      <input type="text" class='form-control' id="orcid" name='orcid' ng-model="obj.orcid" placeholder="ORCID" required orcid/>
+      <span id="helpBlock" class="help-block" ng-show="form.orcid.$error.orcid">Not a valid ORCID. Format is XXXX-XXXX-XXXX-XXXX</span>
     </div>
-    
-    <label class="control-label" for="orcid">Default team:</label>
-    <div class="controls">
+  </div>
+  
+  <div class="form-group">
+    <label for="default_team" class="col-sm-1 control-label">Default team</label>
+    <div class="col-sm-5">
       <select ng-model="obj.default_team" ng-options='team.name for team in teams track by team.team_id'>
       </select>
     </div>
-    <label class="control-label" for="orcid">Default project:</label>
-    <div class="controls">
+  </div>
+  
+  <div class="form-group">
+    <label for="default_project" class="col-sm-1 control-label">Default project</label>
+    <div class="col-sm-5">
       <select ng-model="obj.default_project" ng-options='project.name for project in projects track by project.project_id'>
       </select>
     </div>
   </div>
-  <div class="control-group">
-    <div class="controls">
-      <button type='submit' ng-disabled="form.$invalid" class="btn btn-small btn-primary">Save</a>
-      <button type='cancel' ng-click='cancel()' class="btn btn-small btn-danger">Cancel</button>
-    </div>
+
+  <div class="col-sm-4">
+    <button type='submit' ng-disabled="form.$invalid" class="btn btn-small btn-primary">Save</button>
+    <button type='cancel' ng-click='cancel()' class="btn btn-small btn-danger">Cancel</button>
   </div>
 </form>

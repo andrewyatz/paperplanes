@@ -1,0 +1,92 @@
+<h1>Papers</h1>
+<div class="padded-row">
+  <form novalidate="novalidate" ng-submit='search()' role="search" class='form-horizontal'>
+    <div class="form-group col-sm-10">
+      <input type="text" ng-model='searchText' id='search' name='search' class="form-control" placeholder="Search for papers" focus='true' ng-class='{disabled: searching}'>
+    </div>
+    <div class="form-group col-sm-1">
+      <button type="submit" id='search' ng-class='{disabled: searching}' class="btn btn-primary" data-loading-text="Searching..."><span ng-if='searching'>Searching...</span><span ng-if='! searching'>Search</span></button>
+    </div>
+  </form>
+</div>
+
+<div ng-show="results.length" class='padded-row'>
+  <div class="padded-row">
+    <pagination ng-model="currentPage"
+      total-items="results.length"
+      items-per-page="itemsPerPage"
+      max-size="3"
+      boundary-links="true"
+      num-pages="numPages"
+      rotate="false">
+    </pagination>
+    <select class="form-control" ng-model="itemsPerPage" ng-options='o.number as o.label for o in itemOptions'>
+    </select>
+  </div>
+  <div>
+    <table class='table table-hover col-sm-12 papers'>
+      <col class='col-xs-3'/>
+      <col class='col-xs-1 overflow: hidden; text-overflow: ellipsis;'/>
+      <col class='col-xs-1'/>
+      <col class='col-xs-1'/>
+      <col class='col-xs-1'/>
+      <thead>
+        <tr>
+          <th>
+            <a data-toggle="tooltip" title="Order by title" ng-click="sortType = 'title'; sortReverse = !sortReverse">
+              Title 
+              <span ng-show="sortType == 'title' && !sortReverse" class="glyphicon glyphicon-arrow-up"/></span>
+              <span ng-show="sortType == 'title' && sortReverse" class="glyphicon glyphicon-arrow-down"/></span>
+            </a>
+          </th>
+          <th>
+            <a data-toggle="tooltip" title="Order by Author" ng-click="sortType = 'authorString'; sortReverse = !sortReverse">
+              Authors 
+              <span ng-show="sortType == 'authorString' && !sortReverse" class="glyphicon glyphicon-arrow-up"/></span>
+              <span ng-show="sortType == 'authorString' && sortReverse" class="glyphicon glyphicon-arrow-down"/></span>
+            </a>
+          </th>
+          <th>
+            <a data-toggle="tooltip" title="Order by year" ng-click="sortType = 'pubYear'; sortReverse = !sortReverse">
+              Publication Year 
+              <span ng-show="sortType == 'pubYear' && !sortReverse" class="glyphicon glyphicon-arrow-up"/></span>
+              <span ng-show="sortType == 'pubYear' && sortReverse" class="glyphicon glyphicon-arrow-down"/></span>
+            </a>
+          </th>
+          <th>
+            <a data-toggle="tooltip" title="Order by Journal" ng-click="sortType = 'journalTitle'; sortReverse = !sortReverse">
+              Journal 
+              <span ng-show="sortType == 'journalTitle' && !sortReverse" class="glyphicon glyphicon-arrow-up"/></span>
+              <span ng-show="sortType == 'journalTitle' && sortReverse" class="glyphicon glyphicon-arrow-down"/></span>
+            </a>
+          </th>
+          <th>
+            <a data-toggle="tooltip" title="Order by DOI" ng-click="sortType = 'doi'; sortReverse = !sortReverse">
+              DOI 
+              <span ng-show="sortType == 'doi' && !sortReverse" class="glyphicon glyphicon-arrow-up"/></span>
+              <span ng-show="sortType == 'doi' && sortReverse" class="glyphicon glyphicon-arrow-down"/></span>
+            </a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-click='selectPaper(obj.doi)' ng-repeat='obj in filteredResults'>
+          <td>{{obj.title}}</td>
+          <td>{{obj.authorString | limitTo:authorLimit }}<span ng-if='obj.authorString.length > authorLimit'> ...</span></td>
+          <td>{{obj.pubYear}}</td>
+          <td>{{obj.journalTitle}}</td>
+          <td><a target='_blank' href='https://dx.doi.org/{{obj.doi}}'>{{obj.doi}}</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <pagination ng-model="currentPage"
+    total-items="results.length"
+    items-per-page="itemsPerPage"
+    max-size="3"
+    boundary-links="true"
+    num-pages="numPages"
+    rotate="false">
+  </pagination>
+
+</div>

@@ -205,6 +205,7 @@ app.controller('AwardEditCtrl', ['$scope', 'AwardFactory', 'AgencyFactory', 'Rou
   };
   
   $scope.obj = AwardFactory.get({id: $routeParams.id});
+  
   $scope.agencies = AgencyFactory.query();
 }]);
 
@@ -220,4 +221,64 @@ app.controller('AwardCreateCtrl', ['$scope', 'AwardFactory', 'AgencyFactory', 'R
   };
   
   $scope.agencies = AgencyFactory.query();
+}]);
+
+// ----------- PAPER
+
+app.controller('PaperCtrl', ['$scope', '$http', '$filter', '$location', 'Routes', '$routeParams', function($scope, $http, $filter, $location, Routes, $routeParams) {
+  
+  $scope.itemOptions = [
+    { number: 3, label: "View 3 per page"},
+    { number: 5, label: "View 5 per page"},
+    { number: 10, label: "View 10 per page"},
+    { number: -1, label: "View all"},
+  ];
+  
+  $scope.currentPage = 1;
+  $scope.itemsPerPage = $scope.itemOptions[2].number;
+  $scope.maxSize = 100;
+  $scope.numPages = 10;
+  $scope.filteredResults = [];
+  $scope.results = [];
+  
+  $scope.authorLimit = 50;
+
+  $scope.$watch('results + currentPage + itemsPerPage + sortType + sortReverse', function() {
+    if($scope.results.length === 0) {
+      return;
+    }
+    var begin = (($scope.currentPage - 1) * $scope.itemsPerPage);
+    var end = begin + $scope.itemsPerPage;
+    if($scope.sortType) {
+      $scope.results = $filter('orderBy')($scope.results, $scope.sortType, $scope.sortReverse);
+    }
+    $scope.filteredResults = $scope.results.slice(begin, end);
+  });
+  
+  $scope.search = function() {
+    $scope.searching = true;
+    $scope.filteredResults = [];
+    $scope.results = [];
+    $scope.sortType = undefined;
+    $location.search('query', $scope.searchText);    
+    $http.get('/searchpmc.json?q='+$scope.searchText, {responseType: "json"}).then(function (response) {
+      $scope.searching = false;
+      $scope.currentPage = 1;
+      $scope.results = response.data.results;
+    });
+  };
+  
+  if($routeParams.query) {
+    $scope.searchText = $routeParams.query;
+    $scope.search();
+  }
+    
+  $scope.selectPaper = Routes.paper.create;
+}]);
+
+app.controller('PaperCreateCtrl', ['$scope', '$http', 'Routes', '$routeParams', function($scope, $http, Routes, $routeParams) {
+  
+  $http.get('/searchpmc.json?resultstype=core&q=DOI:'+$routeParams.doi).then(function(response) {
+    $scope.paper = response.data.results[0];
+  });
 }]);

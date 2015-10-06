@@ -20,3 +20,21 @@ directives.directive('focus',
 		};
 	}
 ); 
+
+var ORCID_REGEXP = /^\d{4}-\d{4}-\d{4}-\d{4}$/;
+directives.directive('orcid', function($q, $timeout) {
+  return {
+    require: 'ngModel',
+    link: function(scope, elm, attrs, ctrl) {
+      ctrl.$validators.orcid = function(modelValue, viewValue) {
+        if (ctrl.$isEmpty(modelValue)) {
+          return true;
+        }
+        if (ORCID_REGEXP.test(viewValue)) {
+          return true;
+        }
+        return false;
+      };
+    }
+  };
+});

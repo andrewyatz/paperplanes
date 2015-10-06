@@ -2,8 +2,8 @@
 
 var services = angular.module('PaperPlanesApp.services', ['ngResource']);
 
-var servicesList = ['AgencyFactory', 'TeamFactory', 'ProjectFactory', "PersonFactory", "AwardFactory"];
-var targets = ["agency", "team", "project", "person", "award"];
+var servicesList = ['AgencyFactory', 'TeamFactory', 'ProjectFactory', "PersonFactory"];
+var targets = ["agency", "team", "project", "person"];
 
 for(var index = 0; index < targets.length; index++) {
   var entry = targets[index];
@@ -23,6 +23,30 @@ for(var index = 0; index < targets.length; index++) {
   };
   func(entry, serv);
 }
+
+services.factory('AwardFactory', ['$resource', function($resource) {
+  var responseTransform = function(data, headers) {
+    data = angular.fromJson(data);
+    data.start = new Date(data.start);
+    data.end = new Date(data.end);
+    return data;
+  };
+  return $resource('award/:id.json', {id: '@award_id'}, {
+    update: {
+      method: 'PUT',
+      transformResponse: responseTransform
+    },
+    get: {
+      method: "GET",
+      transformResponse: responseTransform
+    },
+    save: {
+      method: "POST",
+      transformResponse: responseTransform
+    }
+  });
+}]);
+
 
 services.factory('Routes', ['$location', function($location) {
   var routes = {};
@@ -50,5 +74,26 @@ services.factory('Routes', ['$location', function($location) {
     func(entry);
   }
   
+  routes['award'] = {
+    list: function() {
+      $location.path('/award-list')
+    },
+    create: function() {
+      $location.path('/award-create')
+    },
+    edit: function(id) {
+      $location.path('/award-edit/'+id)
+    }
+  };
+  
+  routes['paper'] = {
+    create: function(doi) {
+      $location.path('/paper-create/'+doi);
+      $location.url($location.path());
+    }
+  };
+  
   return routes;
 }]);
+
+

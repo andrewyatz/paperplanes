@@ -15,6 +15,18 @@ use warnings;
 
 use base 'DBIx::Class::Core';
 
+=head1 COMPONENTS LOADED
+
+=over 4
+
+=item * L<DBIx::Class::InflateColumn::DateTime>
+
+=back
+
+=cut
+
+__PACKAGE__->load_components("InflateColumn::DateTime");
+
 =head1 TABLE: C<team>
 
 =cut
@@ -87,8 +99,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-09-25 18:30:57
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ll78uC37f4c7d0tjhLuFDg
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-10-05 13:33:39
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Zrsdw9z6UVa155yh7AvHSA
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
