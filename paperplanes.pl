@@ -147,7 +147,8 @@ get '/searchpmc' => sub {
       my @split_authors = 
         map { 
           my ($name, $inital) = $_ =~ /\s*(.+) (.+)$/; 
-          { initals => $inital, last_name => $name, position => $position++ }; 
+          my @split_initals = split(//, $inital);
+          { initals => $inital, split_initals => \@split_initals, last_name => $name, position => $position++ }; 
         } 
         split(/,/, $authors);
       $record->{split_authors} = \@split_authors;

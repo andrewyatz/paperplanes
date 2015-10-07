@@ -277,8 +277,17 @@ app.controller('PaperCtrl', ['$scope', '$http', '$filter', '$location', 'Routes'
 }]);
 
 app.controller('PaperCreateCtrl', ['$scope', '$http', 'Routes', '$routeParams', function($scope, $http, Routes, $routeParams) {
+
+  $scope.processPaper = function() {
+    //Match authors in paper to the authors in our database
+    //Display the list with dropdowns for their current team/project
+    //Assign grants/awards applicable to the paper
+    //Save in the database (plus write the schema to handle this)
+  };
   
   $http.get('/searchpmc.json?resultstype=core&q=DOI:'+$routeParams.doi).then(function(response) {
     $scope.paper = response.data.results[0];
+    $scope.processPaper();
   });
+  
 }]);
