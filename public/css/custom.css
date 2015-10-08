@@ -16,3 +16,16 @@ body {
 .theme-showcase .navbar .container {
   width: auto;
 }
+
+a[ng-click]{
+    cursor: pointer;
+}
+
+.angucomplete-dropdown {
+  overflow-y: auto;
+  max-height: 200px; // your preference
+}
+
+.list-inline {
+  padding-top: 10px;
+}

@@ -3,12 +3,13 @@
 angular.module('PaperPlanesApp', [
   'ngRoute',
   // 'ui.bootstrap.datetimepicker',
-  // 'angucomplete-alt',
+  'angucomplete-alt',
   'ui.bootstrap',
   'PaperPlanesApp.navControllers',
   'PaperPlanesApp.services',
   'PaperPlanesApp.basicCrudControllers',
-  'PaperPlanesApp.directives'
+  'PaperPlanesApp.directives',
+  'PaperPlanesApp.filters',
   ])
 .config(function ($routeProvider, $httpProvider) {
   

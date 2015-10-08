@@ -12,7 +12,8 @@
     "angular-route": "~1.4.x",
     "angular-bootstrap-datetimepicker": "latest",
     "angucomplete-alt" : "latest",
-    "angular-bootstrap" : "latest"
+    "angular-bootstrap" : "latest",
+    "allmighty-autocomplete": "latest"
   },
   "resolutions": {
     "angular": "1.4.x"

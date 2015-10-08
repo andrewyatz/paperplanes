@@ -276,18 +276,86 @@ app.controller('PaperCtrl', ['$scope', '$http', '$filter', '$location', 'Routes'
   $scope.selectPaper = Routes.paper.create;
 }]);
 
-app.controller('PaperCreateCtrl', ['$scope', '$http', 'Routes', '$routeParams', function($scope, $http, Routes, $routeParams) {
-
-  $scope.processPaper = function() {
-    //Match authors in paper to the authors in our database
-    //Display the list with dropdowns for their current team/project
-    //Assign grants/awards applicable to the paper
-    //Save in the database (plus write the schema to handle this)
+app.controller('PaperCreateCtrl', ['$scope', '$http', '$window', 'Routes', '$routeParams', 'ProjectFactory', 'TeamFactory', 'AwardFactory', function($scope, $http, $window, Routes, $routeParams, ProjectFactory, TeamFactory, AwardFactory) {
+  
+  $scope.projects = ProjectFactory.query();
+  $scope.teams = TeamFactory.query();
+  $scope.awards = AwardFactory.query();
+  
+  $scope.setAuthorIconText = function(author) {
+    if(typeof(author.person_id) === "undefined") {
+      author.info = {
+        icon: 'glyphicon-question-sign',
+        colour: 'text-warning',
+        tooltip: 'Author not known to the system'
+      };
+    }
+    else {
+      if(author.ignore) {
+        author.info = {
+          icon: 'glyphicon-remove-sign',
+          colour: 'text-danger',
+          tooltip: 'Author ignored. Click to link this author'
+        };
+      }
+      else {
+        author.info = {
+          icon: 'glyphicon-ok-sign',
+          colour: 'text-success',
+          tooltip: 'Author will be linked. Click to ignore the link'
+        };
+      }
+    }
   };
+  
+  $scope.cycleIgnore = function(author) {
+    if(typeof(author.person_id) !== undefined) {
+      author.ignore = (author.ignore) ? false : true;
+    }
+    $scope.setAuthorIconText(author);
+  };
+  
+  //Do we need to check if we have this paper already?
+  //Save in the database (plus write the schema to handle this)
+  $scope.$watch('paper', function() {
+    if(typeof($scope.paper) === 'undefined') {
+      return;
+    }
+    
+    $http.post('/paper/matchauthors', $scope.paper.authors).then(function(response) {
+      response.data.results.forEach($scope.setAuthorIconText);
+      $scope.matchedAuthors = response.data.results;
+    });
+  });
   
   $http.get('/searchpmc.json?resultstype=core&q=DOI:'+$routeParams.doi).then(function(response) {
     $scope.paper = response.data.results[0];
-    $scope.processPaper();
   });
+  
+  $scope.selectedAwards = [];
+  $scope.addAward = function() {
+    $scope.selectedAwards.push({ });
+  };
+  $scope.removeAward = function(row) {
+    $scope.selectedAwards.splice(row, 1);
+  };
+  
+  $scope.addAutocompleteAward = function(award) {
+    var original = award.originalObject;
+    var alreadyThere = false;
+    $scope.selectedAwards.forEach(function(element) {
+      if(original.name === element.name) {
+        alreadyThere = true;
+      }
+    });
+    
+    if(! alreadyThere) {
+      $scope.selectedAwards.push(original);
+    }
+  };
+  
+  $scope.cancel = function() {
+    $window.history.back()
+  };
   
 }]);
