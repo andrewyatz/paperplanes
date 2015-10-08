@@ -1,2 +1,8 @@
 #!/bin/sh
+
+# Create DB if not there
+if [ ! -f sqlite:paperplanes.db ]; then
+  sqitch deploy db:sqlite:paperplanes.db
+fi
+
 PERL5LIB=$PWD/lib:$PERL5LIB ./paperplanes.pl daemon --listen http://*:$PORT --mode production
