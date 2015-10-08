@@ -6,6 +6,7 @@
             <th>Team</th>
             <th>Project</th>
             <th>ORCID</th>
+            <th>Status</th>
             <th style="width:20px;"> </th>
             <th style="width:20px;"> </th>
         </tr>
@@ -16,6 +17,7 @@
             <td>{{ i.default_team.name }}</td>
             <td>{{ i.default_project.name }}</td>
             <td>{{ i.orcid }}</td>
+            <td>{{ (i.active_member) ? 'Active' : 'Inactive' }}</td>
             <td><a ng-click="edit(i.person_id)" class="btn btn-small btn-primary">Edit</a></td>
             <td><a ng-click="delete(i.person_id, i.first_name)" class="btn btn-small btn-danger">Delete</a></td>
         </tr>

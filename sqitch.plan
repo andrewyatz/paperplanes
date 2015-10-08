@@ -7,3 +7,4 @@ project 2015-09-25T08:56:21Z Andrew Yates <ayates@ebi.ac.uk> # Adding the projec
 team 2015-09-25T08:56:39Z Andrew Yates <ayates@ebi.ac.uk> # Adding team
 person [project team] 2015-09-25T08:58:21Z Andrew Yates <ayates@ebi.ac.uk> # Adding the person table
 award [agency] 2015-09-25T09:08:18Z Andrew Yates <ayates@ebi.ac.uk> # Adding award table
+activeperson [person] 2015-10-08T09:05:20Z Andrew Yates <aytes@ebi.ac.uk> # Adds a flag to say if someone is an active member and should be automatically linked to papers

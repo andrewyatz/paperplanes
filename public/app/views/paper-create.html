@@ -47,8 +47,8 @@
     
     <div>
       <ul class='list-inline'>
-        <li ng-repeat='award in selectedAwards' class='strong' tooltip="Hello">
-          {{award.name}} <button type="button" class="btn btn-default btn-xs" ng-click='removeAward($index)'>
+        <li ng-repeat='award in selectedAwards' class='strong'>
+          {{award.name}} <button type="button" class="btn btn-default btn-xs" ng-click='removeAward($index)' tooltip="Click to remove {{award.name}} from linked records" tooltip-popup-delay="400" tooltip-placement='bottom'>
             <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span> Remove
           </button>
         </li>

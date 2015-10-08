@@ -14,6 +14,7 @@ use strict;
 use warnings;
 
 use base 'DBIx::Class::Core';
+use Mojo::JSON;
 
 =head1 COMPONENTS LOADED
 
@@ -68,6 +69,12 @@ __PACKAGE__->table("person");
   is_foreign_key: 1
   is_nullable: 0
 
+=head2 active_member
+
+  data_type: 'tinyint'
+  is_nullable: 1
+  size: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -83,6 +90,8 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "default_project",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "active_member",
+  { data_type => "tinyint", is_nullable => 1, size => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -130,8 +139,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-10-05 13:33:39
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6IrqfFz41sIpQF24bPesEg
+# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-10-08 10:15:06
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:VZGD8UsrBN3O5x6sUwOOfg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
@@ -142,7 +151,8 @@ sub TO_JSON {
     person_id => $self->person_id(),
     last_name => $self->last_name(),
     first_name => $self->first_name(),
-    orcid => $self->orcid()
+    orcid => $self->orcid(),
+    active_member => ( ($self->active_member()) ? Mojo::JSON->true : Mojo::JSON->false),
   };
   $hash->{default_team} = $self->default_team()->TO_JSON() if $self->default_team();
   $hash->{default_project} = $self->default_project()->TO_JSON() if $self->default_project();

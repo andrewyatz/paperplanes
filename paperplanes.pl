@@ -206,7 +206,7 @@ post '/paper/matchauthors' => sub {
         $person->{position} = $author_hash->{position} if $author_hash->{position};
         $person->{team} = $person->{default_team};
         $person->{project} = $person->{default_project};
-        $person->{ignore} = Mojo::JSON->false;
+        $person->{ignore} = ($person->{active_member}) ? Mojo::JSON->false : Mojo::JSON->true;
       }
     }
     else {
