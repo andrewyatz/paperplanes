@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use Mojolicious::Lite;
 use Mojo::UserAgent;
-use XML::Simple;
 use Mojo::JSON;
 
 use PaperPlanes::Schema;
