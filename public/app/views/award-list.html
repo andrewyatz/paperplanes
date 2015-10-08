@@ -15,8 +15,7 @@
             <td>{{ i.name }}</td>
             <td>{{ i.agency.name }}</td>
             <td>{{ i.start | date:'yyyy-MM-dd' }}</td>
-            <td>{{ i.end | date:'yyyy-MM-dd' }}</td>
-            
+            <td>{{ i.finish | date:'yyyy-MM-dd' }}</td>
             <td><a ng-click="edit(i.award_id)" class="btn btn-small btn-primary">Edit</a></td>
             <td><a ng-click="delete(i.award_id, i.name)" class="btn btn-small btn-danger">Delete</a></td>
         </tr>

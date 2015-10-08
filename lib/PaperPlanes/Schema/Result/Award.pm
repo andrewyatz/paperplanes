@@ -51,7 +51,7 @@ __PACKAGE__->table("award");
   data_type: 'text'
   is_nullable: 0
 
-=head2 end
+=head2 finish
 
   data_type: 'text'
   is_nullable: 0
@@ -71,7 +71,7 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "start",
   { data_type => "text", is_nullable => 0 },
-  "end",
+  "finish",
   { data_type => "text", is_nullable => 0 },
   "agency_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
@@ -128,9 +128,12 @@ __PACKAGE__->belongs_to(
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 
 # GARRGGHH doesn't work. Try later ...
-# __PACKAGE__->add_column(
-#   start => { inflate_datetime => 1, timezone => 'UTC', locale => 'en_GB' }
-# );
+__PACKAGE__->add_column(
+  start => { inflate_datetime => 1, timezone => 'UTC', locale => 'en_GB' }
+);
+__PACKAGE__->add_column(
+  finish => { inflate_datetime => 1, timezone => 'UTC', locale => 'en_GB' }
+);
 
 sub TO_JSON {
   my ($self) = @_;
@@ -138,7 +141,7 @@ sub TO_JSON {
     award_id => $self->award_id(),
     name => $self->name(),
     start => $self->start(),
-    end => $self->end(),
+    finish => $self->finish(),
   };
   $hash->{agency} = $self->agency()->TO_JSON() if $self->agency();
   return $hash;

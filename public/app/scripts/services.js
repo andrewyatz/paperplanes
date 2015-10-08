@@ -28,7 +28,7 @@ services.factory('AwardFactory', ['$resource', function($resource) {
   var responseTransform = function(data, headers) {
     data = angular.fromJson(data);
     data.start = new Date(data.start);
-    data.end = new Date(data.end);
+    data.finish = new Date(data.finish);
     return data;
   };
   return $resource('award/:id.json', {id: '@award_id'}, {

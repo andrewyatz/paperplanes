@@ -1,0 +1,30 @@
+CREATE TABLE agency (
+  agency_id INTEGER   PRIMARY KEY,
+  name      TEXT      NOT NULL UNIQUE
+);
+CREATE TABLE project (
+  project_id INTEGER   PRIMARY KEY,
+  name       TEXT      NOT NULL UNIQUE
+);
+CREATE TABLE team (
+  team_id INTEGER   PRIMARY KEY,
+  name    TEXT      NOT NULL UNIQUE
+);
+CREATE TABLE award (
+  award_id  INTEGER   PRIMARY KEY,
+  name      TEXT      NOT NULL UNIQUE,
+  start     TEXT      NOT NULL,
+  finish    TEXT      NOT NULL,
+  agency_id INTEGER   NOT NULL,
+  FOREIGN KEY(agency_id) REFERENCES agency(agency_id)
+);
+CREATE TABLE person (
+  person_id       INTEGER   PRIMARY KEY,
+  last_name       TEXT      NOT NULL,
+  first_name      TEXT      NOT NULL,
+  orcid           TEXT      NOT NULL,
+  default_team    INTEGER   NOT NULL,
+  default_project INTEGER   NOT NULL, active_member TINYINT(1) DEFAULT 1,
+  FOREIGN KEY(default_team) REFERENCES team(team_id),
+  FOREIGN KEY(default_project) REFERENCES project(project_id)
+);

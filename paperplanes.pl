@@ -3,10 +3,26 @@ use strict;
 use warnings;
 use Mojolicious::Lite;
 use Mojo::UserAgent;
-use Mojo::JSON;
+use Mojo::JSON qw/decode_json/;
 
 use PaperPlanes::Schema;
-my $schema = PaperPlanes::Schema->connect('dbi:SQLite:dbname=paperplanes.db');
+
+# use DBI; DBI->trace(2);
+
+my @dbargs;
+if($ENV{SQLITE}) {
+  push(@dbargs, 'dbi:SQLite:dbname=paperplanes.db');
+}
+elsif($ENV{PG}) {
+  $ENV{PGDATABASE} //= 'paperplanes';
+  $ENV{PGHOST} //= 'localhost';
+  $ENV{PGPORT} //= 5432;
+  push(@dbargs, sprintf('dbi:Pg:dbname=%s;host=%s;port=%s', $ENV{PGDATABASE}, $ENV{PGHOST}, $ENV{PGPORT}));
+  push(@dbargs, $ENV{PGUSER}) if exists $ENV{PGUSER};
+  push(@dbargs, $ENV{PGPASSWORD}) if exists $ENV{PGPASSWORD};
+}
+
+my $schema = PaperPlanes::Schema->connect(@dbargs);
 
 helper get_object_by_id => sub {
   my ($c, $resultset, $id) = @_;
@@ -134,12 +150,16 @@ get '/searchpmc' => sub {
   my $c = shift;
   my $q = $c->param('q');
   my $resulttype = $c->param('resulttype') // 'lite';
-  my $url = sprintf('http://www.ebi.ac.uk/europepmc/webservices/rest/search/format=json&resulttype=%s&query=%s', $resulttype, $q);
+  my $url = sprintf('http://www.ebi.ac.uk/europepmc/webservices/rest/search?format=json&resulttype=%s&query=%s', $resulttype, $q);
   my $ua = Mojo::UserAgent->new;
-  my $body = $ua->get($url => {Accept => '*/*'})->res->json;
+  my $res = $ua->get($url => {Accept => '*/*'})->res;
+  my $body = $res->body;
+  $body =~ s/^jsonp\(//;
+  $body =~ s/\)$//;
+  my $json = decode_json($body);
   my $results = [];
-  if(exists $body->{resultList}) {
-    $results = $body->{resultList}->{result};
+  if(exists $json->{resultList}) {
+    $results = $json->{resultList}->{result};
     foreach my $record (@{$results}) {
       my $authors = $record->{authorString};
       if(! defined $authors) {

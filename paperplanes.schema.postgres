@@ -1,0 +1,70 @@
+-- 
+-- Created by SQL::Translator::Producer::PostgreSQL
+-- Created on Thu Oct  8 13:06:05 2015
+-- 
+--
+-- Table: agency.
+--
+CREATE TABLE "agency" (
+  "agency_id" SERIAL,
+  "name" text NOT NULL,
+  PRIMARY KEY ("agency_id")
+);
+
+--
+-- Table: project.
+--
+CREATE TABLE "project" (
+  "project_id" SERIAL,
+  "name" text NOT NULL,
+  PRIMARY KEY ("project_id")
+);
+
+--
+-- Table: team.
+--
+CREATE TABLE "team" (
+  "team_id" SERIAL,
+  "name" text NOT NULL,
+  PRIMARY KEY ("team_id")
+);
+
+--
+-- Table: award.
+--
+CREATE TABLE "award" (
+  "award_id" SERIAL,
+  "name" text NOT NULL,
+  "start" timestamp NOT NULL,
+  "finish" timestamp NOT NULL,
+  "agency_id" integer NOT NULL,
+  PRIMARY KEY ("award_id")
+);
+
+--
+-- Table: person.
+--
+CREATE TABLE "person" (
+  "person_id" SERIAL,
+  "last_name" text NOT NULL,
+  "first_name" text NOT NULL,
+  "orcid" text NOT NULL,
+  "default_team" integer NOT NULL,
+  "default_project" integer NOT NULL,
+  "active_member" smallint DEFAULT 1,
+  PRIMARY KEY ("person_id")
+);
+
+--
+-- Foreign Key Definitions
+--
+
+ALTER TABLE "award" ADD FOREIGN KEY ("agency_id")
+  REFERENCES "agency" ("agency_id") DEFERRABLE;
+
+ALTER TABLE "person" ADD FOREIGN KEY ("default_team")
+  REFERENCES "team" ("team_id") DEFERRABLE;
+
+ALTER TABLE "person" ADD FOREIGN KEY ("default_project")
+  REFERENCES "project" ("project_id") DEFERRABLE;
+
