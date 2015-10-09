@@ -27,7 +27,7 @@ elsif($ENV{DATABASE_URL}) {
   my ($user,$pass) = split(/:/, $url->userinfo());
   my $db = $url->path();
   $db =~ s/^\///;
-  push(@dbargs, sprintf('dbi:Pg:dbname=%s;host=%s;port=%s', $url->path(), $url->host(), $url->port()));
+  push(@dbargs, sprintf('dbi:Pg:dbname=%s;host=%s;port=%s', $db, $url->host(), $url->port()));
   push(@dbargs, $user, $pass);
 }
 
