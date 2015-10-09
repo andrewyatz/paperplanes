@@ -4,6 +4,7 @@ use warnings;
 use Mojolicious::Lite;
 use Mojo::UserAgent;
 use Mojo::JSON qw/decode_json/;
+use Mojo::URL;
 
 use PaperPlanes::Schema;
 
@@ -20,6 +21,14 @@ elsif($ENV{PG}) {
   push(@dbargs, sprintf('dbi:Pg:dbname=%s;host=%s;port=%s', $ENV{PGDATABASE}, $ENV{PGHOST}, $ENV{PGPORT}));
   push(@dbargs, $ENV{PGUSER}) if exists $ENV{PGUSER};
   push(@dbargs, $ENV{PGPASSWORD}) if exists $ENV{PGPASSWORD};
+}
+elsif($ENV{DATABASE_URL}) {
+  my $url = Mojo::URL->new($ENV{DATABASE_URL});
+  my ($user,$pass) = split(/:/, $url->userinfo());
+  my $db = $url->path();
+  $db =~ s/^\///;
+  push(@dbargs, sprintf('dbi:Pg:dbname=%s;host=%s;port=%s', $url->path(), $url->host(), $url->port()));
+  push(@dbargs, $user, $pass);
 }
 
 my $schema = PaperPlanes::Schema->connect(@dbargs);
@@ -152,11 +161,12 @@ get '/searchpmc' => sub {
   my $resulttype = $c->param('resulttype') // 'lite';
   my $url = sprintf('http://www.ebi.ac.uk/europepmc/webservices/rest/search?format=json&resulttype=%s&query=%s', $resulttype, $q);
   my $ua = Mojo::UserAgent->new;
-  my $res = $ua->get($url => {Accept => '*/*'})->res;
-  my $body = $res->body;
-  $body =~ s/^jsonp\(//;
-  $body =~ s/\)$//;
-  my $json = decode_json($body);
+  my $res = $ua->get($url => {Accept => 'application/json', 'Access-Control-Allow-Origin' => 'http://apps.ensembl.org'})->res;
+  # my $body = $res->body;
+  # $body =~ s/^jsonp\(//;
+  # $body =~ s/\)$//;
+  # my $json = decode_json($body);
+  my $json = $res->json;
   my $results = [];
   if(exists $json->{resultList}) {
     $results = $json->{resultList}->{result};
