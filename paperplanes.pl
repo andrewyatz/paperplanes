@@ -33,10 +33,16 @@ elsif($ENV{DATABASE_URL}) {
 
 my $schema = PaperPlanes::Schema->connect(@dbargs);
 
+helper get_id_attrib_name => sub {
+  my ($c, $resultset) = @_;
+  my $key = lc($resultset).'_id';
+  return $key;
+};
+
 helper get_object_by_id => sub {
   my ($c, $resultset, $id) = @_;
   $id //= $c->stash('id');
-  my $key = lc($resultset).'_id';
+  my $key = $c->get_id_attrib_name($resultset);
   my $obj = $schema->resultset($resultset)->find({$key => $id});
   return $obj;
 };
@@ -66,9 +72,11 @@ helper create => sub {
   my $obj = $schema->resultset($resultset)->create(
     $c->req->json()
   );
+  my $id = $obj->can($c->get_id_attrib_name($resultset))->($obj);
+  my $new_obj = $c->get_object_by_id($resultset, $id);
   $c->respond_to(
     json => sub {
-      $c->render(json => $obj);
+      $c->render(json => $new_obj)
     }
   );
 };
@@ -81,9 +89,10 @@ helper update => sub {
   $json = $update_sub->($c, $resultset, $json, $obj) if defined $update_sub;
   $obj->set_inflated_columns($json);
   $obj->update();
+  my $new_obj = $c->get_object_by_id($resultset);
   $c->respond_to(
     json => sub {
-      $c->render(json => $obj);
+      $c->render(json => $new_obj);
     }
   );
 };
