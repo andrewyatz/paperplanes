@@ -25,8 +25,10 @@ angular.module('PaperPlanesApp', [
     $routeProvider.when('/'+target+'-create', {templateUrl: 'app/views/'+target+'-create.html', controller: prefix+'CreateCtrl'});
     
   }
-  
-  $routeProvider.when('/paper', { templateUrl: 'app/views/paper.html', controller: 'PaperCtrl'});
+
+  $routeProvider.when('/paper-list', { templateUrl: 'app/views/paper-list.html', controller: 'PaperCtrl'});  
+  $routeProvider.when('/paper-edit/:id', { templateUrl: 'app/views/paper-edit.html', controller: 'PaperEditCtrl'});  
+  $routeProvider.when('/search-papers', { templateUrl: 'app/views/epmc-search.html', controller: 'PaperSearchCtrl'});
   $routeProvider.when('/paper-create/:doi*', { templateUrl: 'app/views/paper-create.html', controller: 'PaperCreateCtrl'});
 
   // $routeProvider.otherwise({redirectTo: '/'});

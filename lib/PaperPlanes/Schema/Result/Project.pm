@@ -83,6 +83,21 @@ __PACKAGE__->add_unique_constraint("name_unique", ["name"]);
 
 =head1 RELATIONS
 
+=head2 paper_people
+
+Type: has_many
+
+Related object: L<PaperPlanes::Schema::Result::PaperPerson>
+
+=cut
+
+__PACKAGE__->has_many(
+  "paper_people",
+  "PaperPlanes::Schema::Result::PaperPerson",
+  { "foreign.project_id" => "self.project_id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 people
 
 Type: has_many
@@ -99,8 +114,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-10-05 13:33:39
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:q86F72p0dyDvLdSccz7lBw
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2016-09-30 19:46:07
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XZlp1fE+/H96K9w2SubvPg
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

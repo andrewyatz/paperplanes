@@ -120,9 +120,24 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 paper_awards
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-10-05 13:33:39
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:RdXbU1gxLtQ9/vDCCGOQ8Q
+Type: has_many
+
+Related object: L<PaperPlanes::Schema::Result::PaperAward>
+
+=cut
+
+__PACKAGE__->has_many(
+  "paper_awards",
+  "PaperPlanes::Schema::Result::PaperAward",
+  { "foreign.award_id" => "self.award_id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2016-09-30 14:31:49
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:tpjMsWIBkmanAqqqtvDpGQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

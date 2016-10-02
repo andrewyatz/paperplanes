@@ -14,7 +14,6 @@ use strict;
 use warnings;
 
 use base 'DBIx::Class::Core';
-use Mojo::JSON;
 
 =head1 COMPONENTS LOADED
 
@@ -72,6 +71,7 @@ __PACKAGE__->table("person");
 =head2 active_member
 
   data_type: 'tinyint'
+  default_value: 1
   is_nullable: 1
   size: 1
 
@@ -91,7 +91,7 @@ __PACKAGE__->add_columns(
   "default_project",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "active_member",
-  { data_type => "tinyint", is_nullable => 1, size => 1 },
+  { data_type => "tinyint", default_value => 1, is_nullable => 1, size => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -138,9 +138,24 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 paper_people
 
-# Created by DBIx::Class::Schema::Loader v0.07042 @ 2015-10-08 10:15:06
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:VZGD8UsrBN3O5x6sUwOOfg
+Type: has_many
+
+Related object: L<PaperPlanes::Schema::Result::PaperPerson>
+
+=cut
+
+__PACKAGE__->has_many(
+  "paper_people",
+  "PaperPlanes::Schema::Result::PaperPerson",
+  { "foreign.person_id" => "self.person_id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07046 @ 2016-09-29 18:24:12
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:SVCWPivBPocAgRSDUVljWQ
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
@@ -153,6 +168,7 @@ sub TO_JSON {
     first_name => $self->first_name(),
     orcid => $self->orcid(),
     active_member => ( ($self->active_member()) ? Mojo::JSON->true : Mojo::JSON->false),
+    full_name => $self->first_name().' '.$self->last_name(),
   };
   $hash->{default_team} = $self->default_team()->TO_JSON() if $self->default_team();
   $hash->{default_project} = $self->default_project()->TO_JSON() if $self->default_project();

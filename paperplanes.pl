@@ -5,10 +5,13 @@ use Mojolicious::Lite;
 use Mojo::UserAgent;
 use Mojo::JSON qw/decode_json/;
 use Mojo::URL;
-
+use Mojolicious::Static;
+use FindBin qw/$Bin/;
+use File::Spec;
 use PaperPlanes::Schema;
+use DateTime::Format::ISO8601;
 
-# use DBI; DBI->trace(2);
+# use DBI; DBI->trace(1);
 
 my @dbargs;
 if($ENV{SQLITE}) {
@@ -32,6 +35,8 @@ elsif($ENV{DATABASE_URL}) {
 }
 
 my $schema = PaperPlanes::Schema->connect(@dbargs);
+my $static = Mojolicious::Static->new();
+push @{$static->paths}, File::Spec->catdir($Bin, 'public');
 
 helper get_id_attrib_name => sub {
   my ($c, $resultset) = @_;
@@ -68,10 +73,10 @@ helper get => sub {
 };
 
 helper create => sub {
-  my ($c, $resultset) = @_;
-  my $obj = $schema->resultset($resultset)->create(
-    $c->req->json()
-  );
+  my ($c, $resultset, $create_sub) = @_;
+  my $json = $c->req->json();
+  $json = $create_sub->($c, $resultset, $json) if defined $create_sub;
+  my $obj = $schema->resultset($resultset)->create($json);
   my $id = $obj->can($c->get_id_attrib_name($resultset))->($obj);
   my $new_obj = $c->get_object_by_id($resultset, $id);
   $c->respond_to(
@@ -99,12 +104,16 @@ helper update => sub {
 
 # Remove by :id
 helper del => sub {
-  my ($c, $resultset) = @_;
+  my ($c, $resultset, $delete_sub) = @_;
   my $obj = $c->get_object_by_id($resultset);
   my $ret = {};
   if(defined $obj) {
-    $obj->delete() if defined $obj;
+    my $guard = $schema->txn_scope_guard();
+    warn $delete_sub;
+    $delete_sub->($c, $resultset, $obj) if defined $delete_sub;
+    $obj->delete();
     $ret = $obj;
+    $guard->commit();
   }
   $c->respond_to(
     json => sub {
@@ -114,7 +123,7 @@ helper del => sub {
 };
 
 sub create_endpoints {
-  my ($resultset, $url_base, $update_sub) = @_;
+  my ($resultset, $url_base, $create_sub, $update_sub, $delete_sub) = @_;
   my $id_url = $url_base.'/:id';
   
   get $url_base => sub {
@@ -124,7 +133,7 @@ sub create_endpoints {
 
   post $url_base => sub {
     my $c = shift;
-    $c->create($resultset);
+    $c->create($resultset, $create_sub);
   };
 
   get $id_url => sub {
@@ -139,13 +148,20 @@ sub create_endpoints {
   
   del $id_url => sub {
     my $c = shift;
-    $c->del($resultset);
+    $c->del($resultset, $delete_sub);
   };
 }
 
 create_endpoints('Agency', '/agency');
 
-create_endpoints('Award', '/award', sub {
+create_endpoints('Award', '/award', 
+sub {
+  my ($c, $resultset, $json) = @_;
+  $json->{start} = DateTime::Format::ISO8601->parse_datetime($json->{start});
+  $json->{finish} = DateTime::Format::ISO8601->parse_datetime($json->{finish});
+  return $json;
+},
+sub {
   my ($c, $resultset, $json, $obj) = @_;
   $json->{agency} = $c->get_object_by_id('Agency', $json->{agency}->{agency_id});
   return $json;
@@ -155,12 +171,52 @@ create_endpoints('Project', '/project');
 
 create_endpoints('Team', '/team');
 
-create_endpoints('Person', '/person', sub {
+create_endpoints('Person', '/person', 
+sub {
+  my ($c, $resultset, $json) = @_;
+  return $json;
+},
+sub {
   my ($c, $resultset, $json, $obj) = @_;
   $json->{default_project} = $c->get_object_by_id('Project', $json->{default_project}->{project_id});
   $json->{default_team} = $c->get_object_by_id('Team', $json->{default_team}->{team_id});
   return $json;
 });
+
+create_endpoints('Paper', '/paper',
+#Create additional processing
+sub {
+  my ($c, $resultset, $json) = @_;
+  my @filtered_projects;
+  my @filtered_people;
+  foreach my $el (@{$json->{paper_projects}}) {
+    if(defined $el->{project_id}) {
+      push(@filtered_projects, $el);
+    }
+  }
+  foreach my $el (@{$json->{paper_people}}) {
+    if(defined $el->{person_id}) {
+      push(@filtered_people, $el);
+    }
+  }
+  $json->{paper_projects} = \@filtered_projects;
+  $json->{paper_people} = \@filtered_people;
+  return $json;
+},
+#Update additional processing
+sub {
+  my ($c, $resultset, $json, $obj) = @_;
+  
+  return $json;
+},
+#Delete additional processing
+sub {
+  my ($c, $resultset, $obj) = @_;
+  $obj->delete_related('paper_people');
+  $obj->delete_related('paper_projects');
+  return;
+}
+);
 
 ############## SEARCH EUROPMC
 

@@ -24,7 +24,36 @@ CREATE TABLE person (
   first_name      TEXT      NOT NULL,
   orcid           TEXT      NOT NULL,
   default_team    INTEGER   NOT NULL,
-  default_project INTEGER   NOT NULL, active_member TINYINT(1) DEFAULT 1,
+  default_project INTEGER   NOT NULL, 
+  active_member   TINYINT(1) DEFAULT 1,
   FOREIGN KEY(default_team) REFERENCES team(team_id),
   FOREIGN KEY(default_project) REFERENCES project(project_id)
+);
+CREATE TABLE paper (
+  paper_id        INTEGER   PRIMARY KEY,
+  title           TEXT      NOT NULL,
+  journal         TEXT      NOT NULL,
+  pub_year        TEXT      NOT NULL,
+  doi             TEXT      NOT NULL,
+  author_count    INTEGER   NOT NULL,
+  author_string   TEXT      NOT NULL
+);
+CREATE TABLE paper_people (
+  paper_persons_id  INTEGER PRIMARY KEY,
+  paper_id          INTEGER NOT NULL,
+  person_id         INTEGER NOT NULL,
+  team_id           INTEGER NOT NULL,
+  project_id        INTEGER NOT NULL,
+  person_order      INTEGER NOT NULL,
+  FOREIGN KEY(paper_id) REFERENCES paper(paper_id),
+  FOREIGN KEY(person_id) REFERENCES person(person_id),
+  FOREIGN KEY(team_id) REFERENCES team(team_id),
+  FOREIGN KEY(project_id) REFERENCES project(project_id)
+);
+CREATE TABLE paper_awards (
+  paper_awards_id   INTEGER PRIMARY KEY,
+  paper_id          INTEGER NOT NULL,
+  award_id          INTEGER NOT NULL,
+  FOREIGN KEY(paper_id) REFERENCES paper(paper_id),
+  FOREIGN KEY(award_id) REFERENCES award(award_id)
 );

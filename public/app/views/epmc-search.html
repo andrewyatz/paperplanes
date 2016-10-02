@@ -1,4 +1,4 @@
-<h1>Papers</h1>
+<h1>Search EuroPMC for Papers</h1>
 <div class="padded-row">
   <form novalidate="novalidate" ng-submit='search()' role="search" class='form-horizontal'>
     <div class="form-group col-sm-10">
@@ -71,7 +71,7 @@
       </thead>
       <tbody>
         <tr ng-click='selectPaper(obj.doi)' ng-repeat='obj in filteredResults'>
-          <td>{{obj.title}}</td>
+          <td><a ng-click='selectPaper(obj.doi)'>{{obj.title}}</a></td>
           <td>{{obj.authorString | limitTo:authorLimit }}<span ng-if='obj.authorString.length > authorLimit'> ...</span></td>
           <td>{{obj.pubYear}}</td>
           <td>{{obj.journalTitle}}</td>

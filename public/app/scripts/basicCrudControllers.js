@@ -225,7 +225,71 @@ app.controller('AwardCreateCtrl', ['$scope', 'AwardFactory', 'AgencyFactory', 'R
 
 // ----------- PAPER
 
-app.controller('PaperCtrl', ['$scope', '$http', '$filter', '$location', 'Routes', '$routeParams', function($scope, $http, $filter, $location, Routes, $routeParams) {
+app.controller('PaperCtrl', ['$scope', '$window', 'PaperFactory', 'Routes', function($scope, $window, PaperFactory, Routes) {
+
+  $scope.edit = Routes.paper.edit;
+  $scope.create = Routes.paper.search;
+  $scope.cancel = Routes.paper.list;
+  
+  $scope.delete = function(id, name) {
+    if($window.confirm('Are you sure you want to delete the paper "'+name+'" and all associations?')) {
+      PaperFactory.delete({id: id});
+      $scope.papers = PaperFactory.query();
+    }
+  };
+  
+  $scope.papers = PaperFactory.query();
+}]); 
+
+app.controller('PaperEditCtrl', ['$scope', 'PaperFactory', 'AuthorCycle', 'ProjectFactory', 'TeamFactory', 'AwardFactory', 'PersonFactory', 'Routes', '$routeParams', function($scope, PaperFactory, AuthorCycle, ProjectFactory, TeamFactory, AwardFactory, PersonFactory, Routes, $routeParams) {
+  $scope.cancel = Routes.award.list;
+  $scope.cycleIgnore = AuthorCycle.cycleIgnore;
+  
+  $scope.projects = ProjectFactory.query();
+  $scope.teams = TeamFactory.query();
+  $scope.awards = AwardFactory.query();
+  $scope.authors = PersonFactory.query();
+  
+  $scope.submit = function() {
+    $scope.obj.$update(function() {
+      Routes.paper.list();
+    });
+  };
+  
+  PaperFactory.get({id: $routeParams.id}).$promise.then(function(paper) {
+    $scope.selectedAwards = [];
+    $scope.matchedAuthors = [];
+    
+    paper.paper_awards.forEach(function(element){
+      $scope.selectedAwards.push({
+        "award_id" : element.award_id,
+        
+      });
+    });
+    paper.paper_people.forEach(function(element){
+      var author = {
+        "person_id" : element.person_id,
+        "position" : element.person_order,
+        "last_name" : element.person.last_name,
+        "last_name" : element.person.last_name,
+      };
+      AuthorCycle.cycle(author);
+      $scope.matchedAuthors.push(author);
+    });
+    
+    $scope.paper = {
+      "paper_id" : paper.paper_id,
+      "doi" : paper.doi,
+      "title" : paper.title,
+      "author_count" : paper.author_count,
+      "authorString" : paper.author_string,
+      "journalTitle" : paper.journal,
+      "pubYear" : paper.pub_year
+    };
+  });
+}]);
+
+app.controller('PaperSearchCtrl', ['$scope', '$http', '$filter', '$location', 'Routes', '$routeParams', function($scope, $http, $filter, $location, Routes, $routeParams) {
   
   $scope.itemOptions = [
     { number: 3, label: "View 3 per page"},
@@ -276,44 +340,15 @@ app.controller('PaperCtrl', ['$scope', '$http', '$filter', '$location', 'Routes'
   $scope.selectPaper = Routes.paper.create;
 }]);
 
-app.controller('PaperCreateCtrl', ['$scope', '$http', '$window', 'Routes', '$routeParams', 'ProjectFactory', 'TeamFactory', 'AwardFactory', function($scope, $http, $window, Routes, $routeParams, ProjectFactory, TeamFactory, AwardFactory) {
-  
+app.controller('PaperCreateCtrl', ['$scope', '$http', '$window', 'Routes', '$routeParams', 'ProjectFactory', 'TeamFactory', 'AwardFactory', 'PersonFactory', 'PaperFactory', 'AuthorCycle', function($scope, $http, $window, Routes, $routeParams, ProjectFactory, TeamFactory, AwardFactory, PersonFactory, PaperFactory, AuthorCycle) {
+
   $scope.projects = ProjectFactory.query();
   $scope.teams = TeamFactory.query();
   $scope.awards = AwardFactory.query();
+  $scope.authors = PersonFactory.query();
   
-  $scope.setAuthorIconText = function(author) {
-    if(typeof(author.person_id) === "undefined") {
-      author.info = {
-        icon: 'glyphicon-question-sign',
-        colour: 'text-warning',
-        tooltip: 'Author not known to the system'
-      };
-    }
-    else {
-      if(author.ignore) {
-        author.info = {
-          icon: 'glyphicon-remove-sign',
-          colour: 'text-danger',
-          tooltip: 'Author ignored. Click to link this author'
-        };
-      }
-      else {
-        author.info = {
-          icon: 'glyphicon-ok-sign',
-          colour: 'text-success',
-          tooltip: 'Author will be linked. Click to ignore the link'
-        };
-      }
-    }
-  };
-  
-  $scope.cycleIgnore = function(author) {
-    if(typeof(author.person_id) !== undefined) {
-      author.ignore = (author.ignore) ? false : true;
-    }
-    $scope.setAuthorIconText(author);
-  };
+  $scope.setAuthorIconText= AuthorCycle.cycle;
+  $scope.cycleIgnore = AuthorCycle.cycleIgnore;
   
   //Do we need to check if we have this paper already?
   //Save in the database (plus write the schema to handle this)
@@ -354,8 +389,54 @@ app.controller('PaperCreateCtrl', ['$scope', '$http', '$window', 'Routes', '$rou
     }
   };
   
+  $scope.addAutocompleteAuthor = function(author) {
+    var original = author.originalObject;
+    var alreadyThere = false;
+    $scope.matchedAuthors.forEach(function(element) {
+      if( original.person_id === element.person_id ) {
+        alreadyThere = true;
+      }
+    });
+    if(! alreadyThere) {
+      var clone = JSON.parse(JSON.stringify(original));
+      clone.initals = original.first_name.charAt(0);
+      clone.split_initals = [clone.initals];
+      clone.position = 0;
+      clone.team = original.default_team;
+      clone.project = original.default_project;
+      clone.ignore = false;
+      $scope.setAuthorIconText(clone);
+      $scope.matchedAuthors.unshift(clone);
+    }
+  };
+  
   $scope.cancel = function() {
     $window.history.back()
+  };
+  
+  $scope.submit = function() {
+    var obj = new PaperFactory({
+      "title" : $scope.paper.title,
+      "journal" : $scope.paper.journalTitle,
+      "pub_year" : $scope.paper.pubYear,
+      "doi" : $scope.paper.doi,
+      "paper_people" : [],
+      "paper_projects" : []
+    });
+    $scope.matchedAuthors.forEach(function(element) {
+      if(typeof(element.person_id) !== undefined ) {
+        obj.paper_people.push({"person_id" : element.person_id, "person_order" : element.position });
+      }
+    });
+    $scope.selectedAwards.forEach(function(element) {
+      if(typeof(element) !== undefined ) {
+        obj.paper_project.push({"award_id" : element.award_id});
+      }
+    });
+    
+    obj.$save(function() {
+      Routes.paper.list();
+    });
   };
   
 }]);
